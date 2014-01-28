@@ -19,12 +19,11 @@ CB = Proc.new do |mydata, err, result_ptr|
   end
 end
 
-fd = ctx.fd
-io = IO.for_fd(fd)
-
 google_id = ctx.resolve_async("www.google.com", 1, 1, CB)
 yahoo_id = ctx.resolve_async("www.yahoo.com", 1, 1, CB)
 github_id = ctx.resolve_async("www.github.com", 1, 1, CB)
+
+io = ctx.io
 
 # Keep looping until we haven't gotten any
 while (::IO.select([io], nil, nil, 5)) 

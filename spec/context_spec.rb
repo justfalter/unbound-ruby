@@ -136,7 +136,7 @@ describe Unbound::Context do
     before :each do
       @processing_proc = lambda do
         fd = @ctx.fd
-        io = IO.for_fd(fd)
+        io = @ctx.io
         ret = ::IO.select([io], nil, nil, 5)
         expect(ret).not_to be_nil
         @ctx.process

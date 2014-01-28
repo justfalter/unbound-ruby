@@ -60,6 +60,10 @@ module Unbound
       raise_if_error!(Unbound::Bindings.ub_cancel(@ub_ctx, async_id))
     end
 
+    def io
+      return ::FFI::IO.for_fd(self.fd)
+    end
+
     def fd
       check_closed!
       Unbound::Bindings.ub_fd(@ub_ctx)
