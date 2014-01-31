@@ -15,17 +15,22 @@ at_exit do
   resolver.close unless resolver.closed?
 end
 
+# Add some callbacks to the resolver
+resolver.on_success do |q, result|
+  puts "Got result for #{q.name} : rcode: #{result[:rcode]}!"
+end
+resolver.on_cancel do |q|
+  puts "Query canceled: #{q.name}!"
+end
+resolver.on_error do |q, error_code|
+  puts "Query had error: #{q.name} #{error_code}!"
+end
+
 names = ["www.google.com", "www.yahoo.com", "github.com", "notadomain"]
 names.each do |name|
   query = Unbound::Query.new(name, 1, 1)
-  query.on_success do |q, result|
-    puts "Got result for #{q.name} : rcode: #{result[:rcode]}!"
-  end
-  query.on_cancel do |q|
-    puts "Query canceled: #{q.name}!"
-  end
-  query.on_error do |q, error_code|
-    puts "Query had error: #{q.name} #{error_code}!"
+  query.on_success do |query, result|
+    puts "query-level callback for on_success: #{name}"
   end
   resolver.send_query(query)
 end

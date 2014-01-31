@@ -94,5 +94,63 @@ describe Unbound::Resolver do
       expect {@resolver.send_query(query1)}.to raise_error
     end
   end
+
+  describe "#on_start" do
+    specify "callbacks should be called when send_query is called" do
+      query = Unbound::Query.new("localhost", 1, 1)
+      expect { |cb|
+        @resolver.on_start(&cb)
+        @resolver.send_query(query)
+      }.to yield_with_args(query)
+    end
+  end
+
+  describe "#on_success" do
+    specify "callbacks should be called if the query is successful" do
+      query = Unbound::Query.new("localhost", 1, 1)
+      result = double("Result")
+      expect { |cb|
+        @resolver.on_success(&cb)
+        @resolver.send_query(query)
+        query.success!(result)
+      }.to yield_with_args(query, result)
+    end
+  end
+
+  describe "#on_error" do
+    specify "callbacks should be called if the query has an error" do
+      query = Unbound::Query.new("localhost", 1, 1)
+      result = double("Result")
+      expect { |cb|
+        @resolver.on_error(&cb)
+        @resolver.send_query(query)
+        query.error!(1234)
+      }.to yield_with_args(query, 1234)
+    end
+  end
+
+  describe "#on_cancel" do
+    specify "callbacks should be called if the query has been canceled" do
+      query = Unbound::Query.new("localhost", 1, 1)
+      result = double("Result")
+      expect { |cb|
+        @resolver.on_cancel(&cb)
+        @resolver.send_query(query)
+        query.cancel!()
+      }.to yield_with_args(query)
+    end
+  end
+
+  describe "#on_finish" do
+    specify "callbacks should be called if the query is finished for any reason" do
+      query = Unbound::Query.new("localhost", 1, 1)
+      result = double("Result")
+      expect { |cb|
+        @resolver.on_finish(&cb)
+        @resolver.send_query(query)
+        query.cancel!()
+      }.to yield_with_args(query)
+    end
+  end
 end
 

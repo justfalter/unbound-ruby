@@ -1,9 +1,15 @@
 require 'unbound/bindings'
 require 'unbound/result'
 require 'unbound/context'
+require 'unbound/callbacks_mixin'
 
 module Unbound
+  # A simple asynchronous resolver
   class Resolver
+    include CallbacksMixin
+
+    # @param [Unbound::Context] ctx The context around which we will wrap this
+    #  resolver.
     def initialize(ctx)
       @ctx = ctx
       @queries = {}
@@ -11,14 +17,25 @@ module Unbound
         :void, [:pointer, :int, :pointer], 
         self.method(:resolve_callback))
 
-      @cancel_callback = self.method(:cancel_query_callback).to_proc
-      @free_query_callback = self.method(:free_query_callback).to_proc
+      init_callbacks
+
+      on_cancel do |query|
+        if query.async_id
+          @ctx.cancel_async_query(query.async_id)
+        end
+      end
+      on_finish do |query|
+        @queries.delete(query.object_id)
+      end
     end
 
+    # @return [Integer] the number of queries for which we are awaiting reply
     def outstanding_queries
       @queries.count
     end
 
+    # @return [Boolean] true if there are any queries for which we are awaiting
+    #  reply
     def outstanding_queries?
       @queries.count > 0
     end
@@ -43,19 +60,6 @@ module Unbound
       end
     end
     private :resolve_callback
-
-    def free_query_callback(query)
-      @queries.delete(query.object_id)
-    end
-    private :free_query_callback
-
-    # @param [Unbound::Query] query
-    def cancel_query_callback(query)
-      if query.async_id
-        @ctx.cancel_async_query(query.async_id)
-      end
-    end
-    private :cancel_query_callback
 
     # Cancel all outstanding queries.
     def cancel_all
@@ -92,8 +96,12 @@ module Unbound
         raise QueryAlreadyStarted.new
       end
       @queries[query.object_id] = query
-      query.on_cancel(@cancel_callback)
-      query.on_finish(@free_query_callback)
+      # Add all of our callbacks, if any have been registered.
+      query.on_start(*@callbacks_start) unless @callbacks_start.empty?
+      query.on_success(*@callbacks_success) unless @callbacks_success.empty?
+      query.on_error(*@callbacks_error) unless @callbacks_error.empty?
+      query.on_cancel(*@callbacks_cancel)
+      query.on_finish(*@callbacks_finish)
       oid_ptr = FFI::Pointer.new query.object_id
       async_id = @ctx.resolve_async(
         query.name, 
