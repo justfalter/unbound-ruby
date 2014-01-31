@@ -5,7 +5,7 @@
 
 Gem::Specification.new do |s|
   s.name = "unbound"
-  s.version = "0.0.3"
+  s.version = "1.0.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mike Ryan"]
@@ -25,11 +25,14 @@ Gem::Specification.new do |s|
     "examples/resolve_async.rb",
     "lib/unbound.rb",
     "lib/unbound/bindings.rb",
+    "lib/unbound/callback_array.rb",
+    "lib/unbound/callbacks_mixin.rb",
     "lib/unbound/context.rb",
     "lib/unbound/exceptions.rb",
     "lib/unbound/query.rb",
     "lib/unbound/resolver.rb",
     "lib/unbound/result.rb",
+    "spec/callback_array_spec.rb",
     "spec/conf/local_zone.conf",
     "spec/conf/test_config.conf",
     "spec/context_spec.rb",
