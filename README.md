@@ -6,42 +6,7 @@ These bindings allow for asynchronous and synchronous name resolution. You reall
 
 ## Code Example
 
-```
-require 'unbound/context'
-require 'unbound/result'
-
-ctx = Unbound::Context.new
-
-CB = Proc.new do |mydata, err, result_ptr|
-  if (err == 0) 
-    result = Unbound::Result.new(result_ptr)
-    puts "Got response rcode: #{result[:rcode]}, qname: #{result[:qname]}"
-  end
-end
-
-google_id = ctx.resolve_async("www.google.com", 1, 1, CB)
-yahoo_id = ctx.resolve_async("www.yahoo.com", 1, 1, CB)
-github_id = ctx.resolve_async("www.github.com", 1, 1, CB)
-
-io = ctx.io
-
-# Keep looping until we haven't gotten any
-while (::IO.select([io], nil, nil, 5)) 
-  ctx.process()
-end
-
-ctx.close()
-puts "all done!"
-```
-
-outputs:
-```
-Got response rcode: 0, qname: www.google.com
-Got response rcode: 0, qname: www.github.com
-Got response rcode: 0, qname: www.yahoo.com
-all done!
-```
-
+See the examples directory.
 
 ## Motivation
 

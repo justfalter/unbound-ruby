@@ -50,15 +50,7 @@ module Unbound
     end
   end
 
-  class Result < FFI::ManagedStruct
-    include ResultLayout
-
-    def self.release(ptr)
-      Unbound.ub_resolve_free(ptr)
-    end
-  end
-
-  class ResultCast < FFI::Struct
+  class Result < FFI::Struct
     include ResultLayout
   end
 end

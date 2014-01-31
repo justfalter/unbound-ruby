@@ -20,6 +20,7 @@ Jeweler::Tasks.new do |gem|
   gem.email = "falter@gmail.com"
   gem.authors = ["Mike Ryan"]
   gem.files  = Dir.glob("lib/**/*.rb") + 
+              Dir.glob("examples/*") + 
               Dir.glob("spec/{*.rb}") + 
               Dir.glob("spec/conf/{*.conf}") + 
               %w(LICENSE.txt Gemfile README.md Rakefile VERSION)

@@ -23,4 +23,8 @@ module Unbound
   class ContextClosedError < MissingContextError
   end
 
+  # Indicates that an identical query object has already been submitted.
+  class QueryAlreadyStarted < Error
+  end
+
 end

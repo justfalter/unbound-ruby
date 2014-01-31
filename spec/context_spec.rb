@@ -1,8 +1,4 @@
 require 'spec_helper'
-require 'unbound/context'
-require 'unbound/exceptions'
-require 'unbound/result'
-require 'pp'
 
 describe Unbound::Context do
   before :each do
@@ -11,6 +7,15 @@ describe Unbound::Context do
 
   after :each do
     @ctx.close unless @ctx.closed?
+  end
+
+  subject { @ctx }
+  its(:raise_on_noid?) { should be_false }
+
+
+  it "should let me indicate that it should raise an error if the error code is :noid" do
+    @ctx.raise_on_noid = true
+    expect(@ctx.raise_on_noid?).to be_true
   end
 
   describe "#closed?" do
@@ -74,7 +79,6 @@ describe Unbound::Context do
       expect(1).to be(1)
 
       @cb_result_ptr = nil
-      @cb_result = nil
       @cb_err = nil
       @cb_mydata = nil
 
@@ -82,9 +86,6 @@ describe Unbound::Context do
         @cb_mydata = mydata
         @cb_err = err
         @cb_result_ptr = result_ptr
-        if (@cb_err == 0) 
-          @cb_result = Unbound::Result.new(@cb_result_ptr)
-        end
       end
     end
 
@@ -120,13 +121,20 @@ describe Unbound::Context do
       end
 
       it "should cancel a query" do
-        expect(@ctx.cancel_async_query(@async_id)).to be(0)
+        expect(@ctx.cancel_async_query(@async_id)).to be(:noerror)
       end
       
       it "should raise an APIError when canceling a non-existent query" do
+        @ctx.raise_on_noid = true 
+        expect(@ctx.raise_on_noid?).to be_true
         expect(lambda do 
           @ctx.cancel_async_query(@async_id + 1)
         end).to raise_error(Unbound::APIError)
+      end
+
+      it "#raise_on_noid=false should raise an APIError when canceling a non-existent query" do
+        expect(@ctx.raise_on_noid?).to be_false
+        expect(@ctx.cancel_async_query(@async_id + 1)).to eq(:noid)
       end
     end
   end

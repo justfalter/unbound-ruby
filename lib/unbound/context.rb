@@ -5,6 +5,15 @@ module Unbound
   class Context
     def initialize
       @ub_ctx = Unbound::Bindings.ub_ctx_create()
+      @raise_on_noid = false
+    end
+
+    def raise_on_noid=(b)
+      @raise_on_noid = (b == true)
+    end
+
+    def raise_on_noid?
+      @raise_on_noid
     end
 
     def check_closed!
@@ -14,10 +23,12 @@ module Unbound
     end
 
     def raise_if_error!(retval)
-      if retval != 0
-        raise APIError.new(retval)
+      return retval if retval == :noerror
+
+      if retval == :noid && @raise_on_noid == false
+        return retval
       end
-      return retval
+      raise APIError.new(retval)
     end
 
     def closed?
