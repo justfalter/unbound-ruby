@@ -2,4 +2,5 @@
 *.swp
 .gem
 Gemfile.lock
-coverage
+coverage/
+pkg/
