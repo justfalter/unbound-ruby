@@ -21,7 +21,7 @@ module Unbound
       @callbacks_start = []
       @callbacks_success = []
       @callbacks_error = []
-      @callbacks_timeout = []
+      @callbacks_cancel = []
       @callbacks_always = []
     end
     
@@ -59,13 +59,13 @@ module Unbound
     # Adds a callback that will be called if the query times out (dependant on 
     # the resolver)
     # @param [Proc] cb
-    def on_timeout(cb_as_arg = nil, &cb_block)
+    def on_cancel(cb_as_arg = nil, &cb_block)
       cb = cb_as_arg || cb_block || raise(ArgumentError.new("Missing callback"))
-      @callbacks_timeout.push(cb)
+      @callbacks_cancel.push(cb)
     end
 
     # Adds a callback will *always* be called when the query is finished 
-    # whether successfully, in error, or due to timeout.
+    # whether successfully, in error, or due to cancel.
     # @param [Proc] cb
     def always(cb_as_arg = nil, &cb_block)
       cb = cb_as_arg || cb_block || raise(ArgumentError.new("Missing callback"))
@@ -101,9 +101,9 @@ module Unbound
       finish!()
     end
 
-    # Called by the resolver after a timeout has occurred.
-    def timeout!()
-      @callbacks_timeout.each do |cb|
+    # Called by the resolver after a cancel has occurred.
+    def cancel!()
+      @callbacks_cancel.each do |cb|
         cb.call(self)
       end
       finish!()
@@ -114,7 +114,7 @@ module Unbound
       @state = STATE_FINISHED
       @callbacks_success.clear
       @callbacks_error.clear
-      @callbacks_timeout.clear
+      @callbacks_cancel.clear
 
       @callbacks_always.each do |cb|
         cb.call(self)

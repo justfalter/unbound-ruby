@@ -45,10 +45,10 @@ describe Unbound::Query do
           @query.on_error()
         }.to raise_error(ArgumentError)
       end
-      its "should not be called after timeout! is called" do
+      its "should not be called after cancel! is called" do
         expect { |cb|
           @query.on_error(cb.to_proc)
-          @query.timeout!()
+          @query.cancel!()
         }.to_not yield_control
         expect(@query).to be_finished
       end
@@ -89,10 +89,10 @@ describe Unbound::Query do
           @query.on_success()
         }.to raise_error(ArgumentError)
       end
-      its "should not be called after timeout! is called" do
+      its "should not be called after cancel! is called" do
         expect { |cb|
           @query.on_success(cb.to_proc)
-          @query.timeout!()
+          @query.cancel!()
         }.to_not yield_control
         expect(@query).to be_finished
       end
@@ -130,45 +130,45 @@ describe Unbound::Query do
       end
     end 
 
-    describe "#on_timeout" do
+    describe "#on_cancel" do
       its "should raise an ArgumentError if no callback is provided" do
         expect { |cb|
-          @query.on_timeout()
+          @query.on_cancel()
         }.to raise_error(ArgumentError)
       end
-      its "should be called after timeout! is called" do
+      its "should be called after cancel! is called" do
         expect { |cb|
-          @query.on_timeout(cb.to_proc)
-          @query.timeout!()
+          @query.on_cancel(cb.to_proc)
+          @query.cancel!()
         }.to yield_with_args(@query)
         expect(@query).to be_finished
       end
       its "should not be called after success! is called" do
         result = double("Result")
         expect { |cb|
-          @query.on_timeout(cb.to_proc)
+          @query.on_cancel(cb.to_proc)
           @query.success!(result)
         }.to_not yield_control
         expect(@query).to be_finished
       end
       its "should not be called after error! is called" do
         expect { |cb|
-          @query.on_timeout(cb.to_proc)
+          @query.on_cancel(cb.to_proc)
           @query.error!(:some_symbol)
         }.to_not yield_control
         expect(@query).to be_finished
       end
       its "should accept a callback as an argument" do
         expect { |cb|
-          @query.on_timeout(cb.to_proc)
-          @query.timeout!()
+          @query.on_cancel(cb.to_proc)
+          @query.cancel!()
         }.to yield_with_args(@query)
         expect(@query).to be_finished
       end
       its "should accept a callback as block" do
         expect { |cb|
-          @query.on_timeout(&cb)
-          @query.timeout!()
+          @query.on_cancel(&cb)
+          @query.cancel!()
         }.to yield_with_args(@query)
         expect(@query).to be_finished
       end
@@ -180,10 +180,10 @@ describe Unbound::Query do
           @query.always()
         }.to raise_error(ArgumentError)
       end
-      its "should be called after timeout! is called" do
+      its "should be called after cancel! is called" do
         expect { |cb|
           @query.always(cb.to_proc)
-          @query.timeout!()
+          @query.cancel!()
         }.to yield_with_args(@query)
         expect(@query).to be_finished
       end

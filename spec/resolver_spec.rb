@@ -14,7 +14,7 @@ describe Unbound::Resolver do
     it "should cancel all queries"  do
       query1 = Unbound::Query.new("localhost", 1, 1)
       expect { |cb|
-        query1.on_timeout(cb.to_proc)
+        query1.on_cancel(cb.to_proc)
         @resolver.send_query(query1)
         @resolver.cancel_all
       }.to yield_control

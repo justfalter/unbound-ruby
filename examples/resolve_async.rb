@@ -21,7 +21,7 @@ names.each do |name|
   query.on_success do |q, result|
     puts "Got result for #{q.name} : rcode: #{result[:rcode]}!"
   end
-  query.on_timeout do |q|
+  query.on_cancel do |q|
     puts "Query canceled: #{q.name}!"
   end
   query.on_error do |q, error_code|
