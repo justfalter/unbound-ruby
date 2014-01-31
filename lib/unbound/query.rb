@@ -1,7 +1,9 @@
 require 'unbound/exceptions'
+require 'unbound/callbacks_mixin'
 module Unbound
   # A representation of a query, as used by Unbound::Resolver
   class Query
+    include CallbacksMixin
     attr_reader :name, :rrtype, :rrclass, :async_id
 
     STATE_INIT = 0
@@ -18,11 +20,7 @@ module Unbound
       @async_id = nil
 
       @state = STATE_INIT
-      @callbacks_start = []
-      @callbacks_success = []
-      @callbacks_error = []
-      @callbacks_cancel = []
-      @callbacks_always = []
+      init_callbacks
     end
     
     # @return [Boolean] whether the query has finished or not
@@ -35,91 +33,40 @@ module Unbound
       @state >= STATE_STARTED
     end
 
-    # Adds a callback that will be called just after the query is sent
-    # @param [Proc] cb
-    def on_start(cb_as_arg = nil, &cb_block)
-      cb = cb_as_arg || cb_block || raise(ArgumentError.new("Missing callback"))
-      @callbacks_start.push(cb)
-    end
-
-    # Adds a callback that will be called when we receive an answer to the query
-    # @param [Proc] cb
-    def on_success(cb_as_arg = nil, &cb_block)
-      cb = cb_as_arg || cb_block || raise(ArgumentError.new("Missing callback"))
-      @callbacks_success.push(cb)
-    end
-
-    # Adds a callback that will be called when an error internal to unbound occurs
-    # @param [Proc] cb
-    def on_error(cb_as_arg = nil, &cb_block)
-      cb = cb_as_arg || cb_block || raise(ArgumentError.new("Missing callback"))
-      @callbacks_error.push(cb)
-    end
-
-    # Adds a callback that will be called if the query times out (dependant on 
-    # the resolver)
-    # @param [Proc] cb
-    def on_cancel(cb_as_arg = nil, &cb_block)
-      cb = cb_as_arg || cb_block || raise(ArgumentError.new("Missing callback"))
-      @callbacks_cancel.push(cb)
-    end
-
-    # Adds a callback will *always* be called when the query is finished 
-    # whether successfully, in error, or due to cancel.
-    # @param [Proc] cb
-    def always(cb_as_arg = nil, &cb_block)
-      cb = cb_as_arg || cb_block || raise(ArgumentError.new("Missing callback"))
-      @callbacks_always.push(cb)
-    end
-
     # Called by the resolver just after it has sent the query, and received an
     # asynchronous ID.
     def start!(async_id)
       @state = STATE_STARTED
       @async_id = async_id
-      @callbacks_start.each do |cb|
-        cb.call(self)
-      end
+      @callbacks_start.call(self)
       @callbacks_start.clear
     end
 
     # Called by the resolver when it has received an answer
     # @param [Unbound::Result] result The result structure
     def success!(result)
-      @callbacks_success.each do |cb|
-        cb.call(self, result)
-      end
+      @callbacks_success.call(self, result)
       finish!()
     end
 
     # Called by the resolver when it has encountered an internal unbound error
     # @param [Unbound::Bindings::error_codes] error_code 
     def error!(error_code)
-      @callbacks_error.each do |cb|
-        cb.call(self, error_code)
-      end
+      @callbacks_error.call(self, error_code)
       finish!()
     end
 
     # Called by the resolver after a cancel has occurred.
     def cancel!()
-      @callbacks_cancel.each do |cb|
-        cb.call(self)
-      end
+      @callbacks_cancel.call(self)
       finish!()
     end
 
     private
     def finish!()
       @state = STATE_FINISHED
-      @callbacks_success.clear
-      @callbacks_error.clear
-      @callbacks_cancel.clear
-
-      @callbacks_always.each do |cb|
-        cb.call(self)
-      end
-      @callbacks_always.clear
+      @callbacks_finish.call(self)
+      clear_callbacks!
     end
   end
 end

@@ -93,7 +93,7 @@ module Unbound
       end
       @queries[query.object_id] = query
       query.on_cancel(@cancel_callback)
-      query.always(@free_query_callback)
+      query.on_finish(@free_query_callback)
       oid_ptr = FFI::Pointer.new query.object_id
       async_id = @ctx.resolve_async(
         query.name, 
