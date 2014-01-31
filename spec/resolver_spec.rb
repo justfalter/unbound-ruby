@@ -78,7 +78,7 @@ describe Unbound::Resolver do
     it "should call our callback" do
       query1 = Unbound::Query.new("localhost", 1, 1)
       expect { |cb|
-        query1.on_success(cb.to_proc)
+        query1.on_answer(cb.to_proc)
         @resolver.send_query(query1)
         io = @resolver.io
         expect(::IO.select([io], nil, nil, 5)).to_not be_nil
@@ -105,14 +105,14 @@ describe Unbound::Resolver do
     end
   end
 
-  describe "#on_success" do
-    specify "callbacks should be called if the query is successful" do
+  describe "#on_answer" do
+    specify "callbacks should be called if the query has been answered" do
       query = Unbound::Query.new("localhost", 1, 1)
       result = double("Result")
       expect { |cb|
-        @resolver.on_success(&cb)
+        @resolver.on_answer(&cb)
         @resolver.send_query(query)
-        query.success!(result)
+        query.answer!(result)
       }.to yield_with_args(query, result)
     end
   end

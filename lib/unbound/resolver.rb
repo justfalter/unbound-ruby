@@ -47,7 +47,7 @@ module Unbound
       return if query.nil?
 
       if err == 0
-        query.success!(Unbound::Result.new(result_ptr))
+        query.answer!(Unbound::Result.new(result_ptr))
       else 
         # :nocov:
         query.error!(err)
@@ -98,7 +98,7 @@ module Unbound
       @queries[query.object_id] = query
       # Add all of our callbacks, if any have been registered.
       query.on_start(*@callbacks_start) unless @callbacks_start.empty?
-      query.on_success(*@callbacks_success) unless @callbacks_success.empty?
+      query.on_answer(*@callbacks_answer) unless @callbacks_answer.empty?
       query.on_error(*@callbacks_error) unless @callbacks_error.empty?
       query.on_cancel(*@callbacks_cancel)
       query.on_finish(*@callbacks_finish)

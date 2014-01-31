@@ -26,9 +26,9 @@ describe Unbound::Query do
         @query.error!(1234)
         expect(@query.finished?).to be_true
       end
-      it "should be true after #success! is called" do
+      it "should be true after #answer! is called" do
         result = double("Result")
-        @query.success!(result)
+        @query.answer!(result)
         expect(@query.finished?).to be_true
       end
     end
@@ -81,20 +81,20 @@ describe Unbound::Query do
       end
     end
 
-    describe "#success!" do
+    describe "#answer!" do
       it "should require a result as an argument" do
         expect {
-          @query.success!
+          @query.answer!
         }.to raise_error(ArgumentError)
         result = double("Result")
         expect {
-          @query.success!(result)
+          @query.answer!(result)
         }.to_not raise_error
       end
 
       specify "the query finished after being called" do
         result = double("Result")
-        @query.success!(result)
+        @query.answer!(result)
         expect(@query).to be_finished
       end
     end
@@ -118,10 +118,10 @@ describe Unbound::Query do
 
     describe "#on_error" do
       specify "callbacks should be called upon #error!, but not others" do
-        expect { |success_cb|
+        expect { |answer_cb|
           expect { |error_cb|
             expect { |cancel_cb|
-              @query.on_success(&success_cb)
+              @query.on_answer(&answer_cb)
               @query.on_error(&error_cb)
               @query.on_cancel(&cancel_cb)
               @query.error!(999)
@@ -138,16 +138,16 @@ describe Unbound::Query do
       end
     end
 
-    describe "#on_success" do
-      specify "callbacks should be called upon #success!, but not others" do
+    describe "#on_answer" do
+      specify "callbacks should be called upon #answer!, but not others" do
         result = double("Result")
-        expect { |success_cb|
+        expect { |answer_cb|
           expect { |error_cb|
             expect { |cancel_cb|
-              @query.on_success(&success_cb)
+              @query.on_answer(&answer_cb)
               @query.on_error(&error_cb)
               @query.on_cancel(&cancel_cb)
-              @query.success!(result)
+              @query.answer!(result)
             }.to_not yield_control
           }.to_not yield_control
         }.to yield_control
@@ -155,19 +155,19 @@ describe Unbound::Query do
 
       specify "callbacks should be called with the query object and result object" do
         result = double("Result")
-        expect { |success_cb|
-          @query.on_success(&success_cb)
-          @query.success!(result)
+        expect { |answer_cb|
+          @query.on_answer(&answer_cb)
+          @query.answer!(result)
         }.to yield_with_args(@query, result)
       end
     end 
 
     describe "#on_cancel" do
       specify "callbacks should be called upon #cancel!, but not others" do
-        expect { |success_cb|
+        expect { |answer_cb|
           expect { |error_cb|
             expect { |cancel_cb|
-              @query.on_success(&success_cb)
+              @query.on_answer(&answer_cb)
               @query.on_error(&error_cb)
               @query.on_cancel(&cancel_cb)
               @query.cancel!()
@@ -191,11 +191,11 @@ describe Unbound::Query do
           @query.cancel!()
         }.to yield_with_args(@query)
       end
-      it "should be called after success! is called" do
+      it "should be called after answer! is called" do
         result = double("Result")
         expect { |cb|
           @query.on_finish(cb.to_proc)
-          @query.success!(result)
+          @query.answer!(result)
         }.to yield_with_args(@query)
       end
       it "should be called after error! is called" do

@@ -44,8 +44,8 @@ module Unbound
 
     # Called by the resolver when it has received an answer
     # @param [Unbound::Result] result The result structure
-    def success!(result)
-      @callbacks_success.call(self, result)
+    def answer!(result)
+      @callbacks_answer.call(self, result)
       finish!()
     end
 

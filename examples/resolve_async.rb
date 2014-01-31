@@ -16,7 +16,7 @@ at_exit do
 end
 
 # Add some callbacks to the resolver
-resolver.on_success do |q, result|
+resolver.on_answer do |q, result|
   puts "Got result for #{q.name} : rcode: #{result[:rcode]}!"
 end
 resolver.on_cancel do |q|
@@ -29,8 +29,8 @@ end
 names = ["www.google.com", "www.yahoo.com", "github.com", "notadomain"]
 names.each do |name|
   query = Unbound::Query.new(name, 1, 1)
-  query.on_success do |query, result|
-    puts "query-level callback for on_success: #{name}"
+  query.on_answer do |query, result|
+    puts "query-level callback for on_answer: #{name}"
   end
   resolver.send_query(query)
 end
