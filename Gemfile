@@ -5,10 +5,10 @@ gem "ffi"
 
 group :development do
   gem "jeweler"
-  gem "rake"
 end
 
 group :test do
   gem "rspec"
   gem "simplecov"
+  gem "rake"
 end

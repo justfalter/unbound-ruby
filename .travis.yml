@@ -6,6 +6,9 @@ rvm:
   - jruby-19mode
   - jruby-20mode
 
-
 before_install:
   - sudo apt-get install libunbound2
+
+install: bundle install --without development
+
+script: bundle exec rake spec
