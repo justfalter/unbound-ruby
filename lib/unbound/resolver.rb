@@ -2,6 +2,7 @@ require 'unbound/bindings'
 require 'unbound/result'
 require 'unbound/context'
 require 'unbound/callbacks_mixin'
+require 'unbound/query_store'
 
 module Unbound
   # A simple asynchronous resolver
@@ -12,7 +13,7 @@ module Unbound
     #  resolver.
     def initialize(ctx)
       @ctx = ctx
-      @queries = {}
+      @queries = QueryStore.new
       @resolve_callback_func = FFI::Function.new(
         :void, [:pointer, :int, :pointer], 
         self.method(:resolve_callback))
@@ -25,7 +26,7 @@ module Unbound
         end
       end
       on_finish do |query|
-        @queries.delete(query.object_id)
+        @queries.delete_query(query)
       end
     end
 
@@ -41,9 +42,7 @@ module Unbound
     end
 
     def resolve_callback(oid_ptr, err, result_ptr)
-      return if oid_ptr.nil?
-      oid = oid_ptr.address
-      query = @queries[oid]
+      query = @queries.get_by_pointer(oid_ptr)
       return if query.nil?
 
       if err == 0
@@ -63,7 +62,7 @@ module Unbound
 
     # Cancel all outstanding queries.
     def cancel_all
-      @queries.each_value do |query|
+      @queries.each do |query|
         query.cancel!
       end
       @queries.clear
@@ -95,20 +94,19 @@ module Unbound
       if query.started?
         raise QueryAlreadyStarted.new
       end
-      @queries[query.object_id] = query
       # Add all of our callbacks, if any have been registered.
       query.on_start(*@callbacks_start) unless @callbacks_start.empty?
       query.on_answer(*@callbacks_answer) unless @callbacks_answer.empty?
       query.on_error(*@callbacks_error) unless @callbacks_error.empty?
       query.on_cancel(*@callbacks_cancel)
       query.on_finish(*@callbacks_finish)
-      oid_ptr = FFI::Pointer.new query.object_id
+      ptr = @queries.store(query)
       async_id = @ctx.resolve_async(
         query.name, 
         query.rrtype, 
         query.rrclass, 
         @resolve_callback_func, 
-        oid_ptr)
+        ptr)
       query.start!(async_id)
     end
   end
