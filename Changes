@@ -1,0 +1,7 @@
+
+1.0.1 - 2013-03-06
+    - Fix issue where the resolver couldn't keep track of in-flight queries on 
+      32-bit systems. 
+
+1.0.0 
+    - Initial release
