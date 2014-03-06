@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mike Ryan"]
-  s.date = "2014-01-31"
+  s.date = "2014-03-06"
   s.description = "Unbound DNS resolver bindings for Ruby"
   s.email = "falter@gmail.com"
   s.extra_rdoc_files = [
@@ -30,6 +30,7 @@ Gem::Specification.new do |s|
     "lib/unbound/context.rb",
     "lib/unbound/exceptions.rb",
     "lib/unbound/query.rb",
+    "lib/unbound/query_store.rb",
     "lib/unbound/resolver.rb",
     "lib/unbound/result.rb",
     "spec/callback_array_spec.rb",
@@ -37,6 +38,7 @@ Gem::Specification.new do |s|
     "spec/conf/test_config.conf",
     "spec/context_spec.rb",
     "spec/query_spec.rb",
+    "spec/query_store_spec.rb",
     "spec/resolver_spec.rb",
     "spec/result_spec.rb",
     "spec/spec_helper.rb"
@@ -53,16 +55,13 @@ Gem::Specification.new do |s|
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<ffi>, [">= 0"])
       s.add_development_dependency(%q<jeweler>, [">= 0"])
-      s.add_development_dependency(%q<rake>, [">= 0"])
     else
       s.add_dependency(%q<ffi>, [">= 0"])
       s.add_dependency(%q<jeweler>, [">= 0"])
-      s.add_dependency(%q<rake>, [">= 0"])
     end
   else
     s.add_dependency(%q<ffi>, [">= 0"])
     s.add_dependency(%q<jeweler>, [">= 0"])
-    s.add_dependency(%q<rake>, [">= 0"])
   end
 end
 
