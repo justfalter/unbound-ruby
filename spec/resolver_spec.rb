@@ -87,6 +87,30 @@ describe Unbound::Resolver do
     end
   end
 
+  describe "#cancel_query" do
+    it "should all context#cancel_async_query" do
+      query = Unbound::Query.new("localhost", 1, 1)
+      expect(@context).to receive(:cancel_async_query).and_call_original
+      @resolver.send_query(query)
+      @resolver.cancel_query(query)
+    end
+
+    it "should call 'query#cancel!'" do
+      query = Unbound::Query.new("localhost", 1, 1)
+      expect(query).to receive(:cancel!).and_call_original
+      @resolver.send_query(query)
+      @resolver.cancel_query(query)
+    end
+
+    it "shouldn't try to cancel if the query hasn't been sent" do
+      query = double("Query")
+      allow(query).to receive(:async_id).and_return(nil)
+      ctx = double("Context")
+      resolver = Unbound::Resolver.new(ctx)
+      resolver.cancel_query(query)
+    end
+  end
+
   describe "#send_query" do
     it "should raise an exception if the same query object is submitted twice" do
       query1 = Unbound::Query.new("localhost", 1, 1)
@@ -136,7 +160,7 @@ describe Unbound::Resolver do
       expect { |cb|
         @resolver.on_cancel(&cb)
         @resolver.send_query(query)
-        query.cancel!()
+        @resolver.cancel_query(query)
       }.to yield_with_args(query)
     end
   end
@@ -148,7 +172,7 @@ describe Unbound::Resolver do
       expect { |cb|
         @resolver.on_finish(&cb)
         @resolver.send_query(query)
-        query.cancel!()
+        @resolver.cancel_query(query)
       }.to yield_with_args(query)
     end
   end

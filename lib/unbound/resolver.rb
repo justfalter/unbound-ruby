@@ -20,14 +20,16 @@ module Unbound
 
       init_callbacks
 
-      on_cancel do |query|
-        if query.async_id
-          @ctx.cancel_async_query(query.async_id)
-        end
-      end
       on_finish do |query|
         @queries.delete_query(query)
       end
+    end
+
+    # @param [Unbound::Query] query The query that will be canceled
+    def cancel_query(query)
+      return if query.async_id.nil?
+      @ctx.cancel_async_query(query.async_id)
+      query.cancel!
     end
 
     # @return [Integer] the number of queries for which we are awaiting reply
@@ -63,7 +65,7 @@ module Unbound
     # Cancel all outstanding queries.
     def cancel_all
       @queries.each do |query|
-        query.cancel!
+        cancel_query(query)
       end
       @queries.clear
     end
@@ -98,7 +100,8 @@ module Unbound
       query.on_start(*@callbacks_start) unless @callbacks_start.empty?
       query.on_answer(*@callbacks_answer) unless @callbacks_answer.empty?
       query.on_error(*@callbacks_error) unless @callbacks_error.empty?
-      query.on_cancel(*@callbacks_cancel)
+      query.on_cancel(*@callbacks_cancel) unless @callbacks_cancel.empty?
+
       query.on_finish(*@callbacks_finish)
       ptr = @queries.store(query)
       async_id = @ctx.resolve_async(
