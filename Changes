@@ -1,3 +1,7 @@
+2.0.0 - 2013-03-12
+    - Use Unbound::Resolver#cancel_query to cancel queries. 
+    - Unbound::Query#cancel! no longer cancels the query
+      
 
 1.0.1 - 2013-03-06
     - Fix issue where the resolver couldn't keep track of in-flight queries on 
