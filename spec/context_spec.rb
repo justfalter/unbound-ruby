@@ -147,6 +147,24 @@ describe Unbound::Context do
     it "should return a new IO object for each call" do
       expect(@ctx.io).not_to be(@ctx.io)
     end
+
+    it "should not be set to autoclose" do
+      expect(@ctx.io.autoclose?).to be_false
+    end
+
+    it "should not autoclose when garbage collection occurs" do
+      do_gc = lambda { ObjectSpace.garbage_collect }
+
+      if Object.const_defined?(:JRuby)
+        # Try to get some GC under JRuby
+        do_gc = lambda { java.lang.System.gc() }
+      end
+      ::IO::select([@ctx.io], nil, nil, 0)
+      do_gc.call()
+      expect {
+        ::IO::select([@ctx.io], nil, nil, 0)
+      }.not_to raise_error
+    end
   end
 
   describe "asynchronous query processing via select/process" do
