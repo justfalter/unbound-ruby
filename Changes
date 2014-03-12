@@ -1,6 +1,7 @@
 2.0.0 - 2013-03-12
     - Use Unbound::Resolver#cancel_query to cancel queries. 
     - Unbound::Query#cancel! no longer cancels the query
+    - Unbound::Query#async_id will now be set to nil when the query has finished
       
 
 1.0.1 - 2013-03-06
