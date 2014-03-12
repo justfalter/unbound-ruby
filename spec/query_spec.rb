@@ -33,6 +33,22 @@ describe Unbound::Query do
       end
     end
 
+    describe "#async_id" do
+      it "should be nil if the query hasn't been started" do
+        expect(@query.async_id).to be_nil
+      end
+      it "should be the proper value if it has been started" do
+        expect(@query.async_id).to be_nil
+        @query.start!(1234)
+        expect(@query.async_id).to eq(1234)
+      end
+      it "should be nil if the query has been finished" do
+        @query.start!(1234)
+        @query.cancel!
+        expect(@query.async_id).to be_nil
+      end
+    end
+
     describe "#start!" do
       it "should set the async_id" do
         expect(@query.async_id).to be_nil
@@ -66,6 +82,11 @@ describe Unbound::Query do
     end
 
     describe "#error!" do
+      before :each do
+        @async_id = 9999
+        @query.start!(@async_id)
+      end
+
       it "should require an error code as an argument" do
         expect {
           @query.error!
@@ -79,9 +100,19 @@ describe Unbound::Query do
         @query.error!(1234)
         expect(@query).to be_finished
       end
+
+      it "should have set async_id to nil" do
+        @query.error!(1234)
+        expect(@query.async_id).to be_nil
+      end
     end
 
     describe "#answer!" do
+      before :each do
+        @async_id = 9999
+        @query.start!(@async_id)
+      end
+
       it "should require a result as an argument" do
         expect {
           @query.answer!
@@ -97,9 +128,20 @@ describe Unbound::Query do
         @query.answer!(result)
         expect(@query).to be_finished
       end
+
+      it "should have set async_id to nil" do
+        result = double("Result")
+        @query.answer!(result)
+        expect(@query.async_id).to be_nil
+      end
     end
 
     describe "#cancel!" do
+      before :each do
+        @async_id = 9999
+        @query.start!(@async_id)
+      end
+
       it "should require that no arguments be specified" do
         expect {
           @query.cancel!(1234)
@@ -112,6 +154,11 @@ describe Unbound::Query do
       specify "the query finished after being called" do
         @query.cancel!
         expect(@query).to be_finished
+      end
+
+      it "should have set async_id to nil" do
+        @query.cancel!
+        expect(@query.async_id).to be_nil
       end
     end
 

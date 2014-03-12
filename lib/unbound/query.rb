@@ -65,6 +65,7 @@ module Unbound
     private
     def finish!()
       @state = STATE_FINISHED
+      @async_id = nil
       @callbacks_finish.call(self)
       clear_callbacks!
     end
