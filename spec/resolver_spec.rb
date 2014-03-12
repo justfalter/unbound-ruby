@@ -23,14 +23,56 @@ describe Unbound::Resolver do
   end
 
   describe "#outstanding_queries" do
-    it "should return the number of outstanding queries"  do
+    it "should be zero if there are no queries" do
       expect(@resolver.outstanding_queries).to eq(0)
-      10.times do
-        @resolver.send_query(Unbound::Query.new("localhost", 1, 1))
-      end
-      expect(@resolver.outstanding_queries).to eq(10)
-      @resolver.cancel_all
+    end
+
+    it "should go up by one for each query added" do
+      q1 = Unbound::Query.new("localhost", 1, 1)
+      q2 = Unbound::Query.new("localhost", 1, 1)
+      q3 = Unbound::Query.new("localhost", 1, 1)
+      q4 = Unbound::Query.new("localhost", 1, 1)
       expect(@resolver.outstanding_queries).to eq(0)
+      @resolver.send_query(q1)
+      expect(@resolver.outstanding_queries).to eq(1)
+      @resolver.send_query(q2)
+      expect(@resolver.outstanding_queries).to eq(2)
+      @resolver.send_query(q3)
+      expect(@resolver.outstanding_queries).to eq(3)
+      @resolver.send_query(q4)
+      expect(@resolver.outstanding_queries).to eq(4)
+    end
+
+    it "should drop by one for each query canceled" do
+      q1 = Unbound::Query.new("localhost", 1, 1)
+      q2 = Unbound::Query.new("localhost", 1, 1)
+      q3 = Unbound::Query.new("localhost", 1, 1)
+      q4 = Unbound::Query.new("localhost", 1, 1)
+      @resolver.send_query(q1)
+      @resolver.send_query(q2)
+      @resolver.send_query(q3)
+      @resolver.send_query(q4)
+      expect(@resolver.outstanding_queries).to eq(4)
+      @resolver.cancel_query(q1)
+      expect(@resolver.outstanding_queries).to eq(3)
+      @resolver.cancel_query(q2)
+      expect(@resolver.outstanding_queries).to eq(2)
+      @resolver.cancel_query(q3)
+      expect(@resolver.outstanding_queries).to eq(1)
+      @resolver.cancel_query(q4)
+      expect(@resolver.outstanding_queries).to eq(0)
+    end
+
+    it "should not reduce the count by more than one if the same query is canceled twice" do
+      q1 = Unbound::Query.new("localhost", 1, 1)
+      q2 = Unbound::Query.new("localhost", 1, 1)
+      @resolver.send_query(q1)
+      @resolver.send_query(q2)
+      expect(@resolver.outstanding_queries).to eq(2)
+      @resolver.cancel_query(q1)
+      expect(@resolver.outstanding_queries).to eq(1)
+      @resolver.cancel_query(q1)
+      expect(@resolver.outstanding_queries).to eq(1)
     end
   end
 
@@ -96,10 +138,18 @@ describe Unbound::Resolver do
       @resolver.cancel_query(query)
     end
 
-    it "should call 'query#cancel!'" do
-      expect(query).to receive(:cancel!).and_call_original
+    it "should set query.async_id to nil" do
       @resolver.send_query(query)
+      expect(query.async_id).not_to be_nil
       @resolver.cancel_query(query)
+      expect(query.async_id).to be_nil
+    end
+
+    it "should call 'query#cancel!' only once" do
+      @resolver.send_query(query)
+      expect(query).to receive(:cancel!).exactly(1).times.and_call_original
+      @resolver.cancel_query(query)
+      @resolver.close
     end
 
     it "shouldn't try to cancel if the query hasn't been sent" do

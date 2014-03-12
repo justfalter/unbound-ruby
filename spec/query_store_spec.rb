@@ -29,6 +29,20 @@ describe Unbound::QueryStore do
       end
       expect(actual_queries).to match_array(expected_queries)
     end
+    it "should not yield deleted queries" do
+      q1 = new_query(1)
+      q2 = new_query(2)
+      q3 = new_query(3)
+      query_store.store(q1)
+      query_store.store(q2)
+      query_store.store(q3)
+      query_store.delete_query(q2)
+      remaining_queries = []
+      query_store.each do |query|
+        remaining_queries << query
+      end
+      expect(remaining_queries).to match_array([q1, q3])
+    end
   end
   describe "#clear" do
     it "should cause the count to drop to 0" do
