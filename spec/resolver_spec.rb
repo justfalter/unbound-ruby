@@ -68,9 +68,13 @@ describe Unbound::Resolver do
   end
 
   describe "#io" do
-    it "should return an IO object" do
-      expect(@resolver.io).to be_a(::IO)
+    it "should pass through to ctx.io" do
+      ctx = double("Context")
+      resolver = Unbound::Resolver.new(ctx)
+      expect(ctx).to receive(:io)
+      resolver.io
     end
+
   end
 
   describe "#process" do

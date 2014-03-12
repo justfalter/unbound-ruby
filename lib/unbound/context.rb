@@ -71,10 +71,14 @@ module Unbound
       raise_if_error!(Unbound::Bindings.ub_cancel(@ub_ctx, async_id))
     end
 
+    # Returns a brand new IO for the file descriptor. This can be selected to 
+    # determine if processing needs to be done.
+    # @return [FFI::IO] a brand new IO for the context's file descriptor
     def io
       return ::FFI::IO.for_fd(self.fd)
     end
 
+    # Returns the number for the file descriptor.
     def fd
       check_closed!
       Unbound::Bindings.ub_fd(@ub_ctx)

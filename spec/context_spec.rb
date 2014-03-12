@@ -139,6 +139,15 @@ describe Unbound::Context do
     end
   end
 
+  describe "#io" do
+    it "should return an IO object" do
+      expect(@ctx.io).to be_a(::IO)
+    end
+
+    it "should return a new IO object for each call" do
+      expect(@ctx.io).not_to be(@ctx.io)
+    end
+  end
 
   describe "asynchronous query processing via select/process" do
     before :each do
