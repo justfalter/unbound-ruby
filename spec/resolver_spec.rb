@@ -9,13 +9,14 @@ describe Unbound::Resolver do
   after :each do
     @resolver.close unless @resolver.closed?
   end
+
+  let(:query) { Unbound::Query.new("localhost", 1, 1) }
   
   describe "#cancel_all" do
     it "should cancel all queries"  do
-      query1 = Unbound::Query.new("localhost", 1, 1)
       expect { |cb|
-        query1.on_cancel(cb.to_proc)
-        @resolver.send_query(query1)
+        query.on_cancel(cb.to_proc)
+        @resolver.send_query(query)
         @resolver.cancel_all
       }.to yield_control
     end
@@ -25,8 +26,7 @@ describe Unbound::Resolver do
     it "should return the number of outstanding queries"  do
       expect(@resolver.outstanding_queries).to eq(0)
       10.times do
-        query = Unbound::Query.new("localhost", 1, 1)
-        @resolver.send_query(query)
+        @resolver.send_query(Unbound::Query.new("localhost", 1, 1))
       end
       expect(@resolver.outstanding_queries).to eq(10)
       @resolver.cancel_all
@@ -40,7 +40,6 @@ describe Unbound::Resolver do
     end
 
     it "should be true if there are any outstanding queries"  do
-      query = Unbound::Query.new("localhost", 1, 1)
       @resolver.send_query(query)
       expect(@resolver.outstanding_queries?).to be_true
     end
@@ -76,10 +75,9 @@ describe Unbound::Resolver do
 
   describe "#process" do
     it "should call our callback" do
-      query1 = Unbound::Query.new("localhost", 1, 1)
       expect { |cb|
-        query1.on_answer(cb.to_proc)
-        @resolver.send_query(query1)
+        query.on_answer(cb.to_proc)
+        @resolver.send_query(query)
         io = @resolver.io
         expect(::IO.select([io], nil, nil, 5)).to_not be_nil
         @resolver.process
@@ -89,14 +87,12 @@ describe Unbound::Resolver do
 
   describe "#cancel_query" do
     it "should all context#cancel_async_query" do
-      query = Unbound::Query.new("localhost", 1, 1)
       expect(@context).to receive(:cancel_async_query).and_call_original
       @resolver.send_query(query)
       @resolver.cancel_query(query)
     end
 
     it "should call 'query#cancel!'" do
-      query = Unbound::Query.new("localhost", 1, 1)
       expect(query).to receive(:cancel!).and_call_original
       @resolver.send_query(query)
       @resolver.cancel_query(query)
@@ -113,15 +109,13 @@ describe Unbound::Resolver do
 
   describe "#send_query" do
     it "should raise an exception if the same query object is submitted twice" do
-      query1 = Unbound::Query.new("localhost", 1, 1)
-      @resolver.send_query(query1)
-      expect {@resolver.send_query(query1)}.to raise_error
+      @resolver.send_query(query)
+      expect {@resolver.send_query(query)}.to raise_error
     end
   end
 
   describe "#on_start" do
     specify "callbacks should be called when send_query is called" do
-      query = Unbound::Query.new("localhost", 1, 1)
       expect { |cb|
         @resolver.on_start(&cb)
         @resolver.send_query(query)
@@ -131,7 +125,6 @@ describe Unbound::Resolver do
 
   describe "#on_answer" do
     specify "callbacks should be called if the query has been answered" do
-      query = Unbound::Query.new("localhost", 1, 1)
       result = double("Result")
       expect { |cb|
         @resolver.on_answer(&cb)
@@ -143,7 +136,6 @@ describe Unbound::Resolver do
 
   describe "#on_error" do
     specify "callbacks should be called if the query has an error" do
-      query = Unbound::Query.new("localhost", 1, 1)
       result = double("Result")
       expect { |cb|
         @resolver.on_error(&cb)
@@ -155,7 +147,6 @@ describe Unbound::Resolver do
 
   describe "#on_cancel" do
     specify "callbacks should be called if the query has been canceled" do
-      query = Unbound::Query.new("localhost", 1, 1)
       result = double("Result")
       expect { |cb|
         @resolver.on_cancel(&cb)
@@ -167,7 +158,6 @@ describe Unbound::Resolver do
 
   describe "#on_finish" do
     specify "callbacks should be called if the query is finished for any reason" do
-      query = Unbound::Query.new("localhost", 1, 1)
       result = double("Result")
       expect { |cb|
         @resolver.on_finish(&cb)
