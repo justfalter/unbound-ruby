@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = "unbound"
-  s.version = "1.0.1"
+  s.version = "1.1.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Mike Ryan"]
-  s.date = "2014-03-06"
+  s.date = "2014-03-12"
   s.description = "Unbound DNS resolver bindings for Ruby"
   s.email = "falter@gmail.com"
   s.extra_rdoc_files = [
