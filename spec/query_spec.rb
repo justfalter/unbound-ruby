@@ -16,20 +16,20 @@ describe Unbound::Query do
 
     describe "#finished?" do
       it "should be false by default" do
-        expect(@query.finished?).to be_false
+        expect(@query.finished?).to eq false
       end
       it "should be true after #cancel! is called" do
         @query.cancel!
-        expect(@query.finished?).to be_true
+        expect(@query.finished?).to eq true
       end
       it "should be true after #error! is called" do
         @query.error!(1234)
-        expect(@query.finished?).to be_true
+        expect(@query.finished?).to eq true
       end
       it "should be true after #answer! is called" do
         result = double("Result")
         @query.answer!(result)
-        expect(@query.finished?).to be_true
+        expect(@query.finished?).to eq true
       end
     end
 
@@ -64,11 +64,11 @@ describe Unbound::Query do
 
     describe "#started?" do
       it "should be false by default" do
-        expect(@query.started?).to be_false
+        expect(@query.started?).to eq false
       end
       it "should be true after start! is called" do
         @query.start!(1234)
-        expect(@query.started?).to be_true
+        expect(@query.started?).to eq true
       end
     end
 

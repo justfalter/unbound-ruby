@@ -78,33 +78,33 @@ describe Unbound::Resolver do
 
   describe "#outstanding_queries?" do
     it "should be false if there are no outstanding queries"  do
-      expect(@resolver.outstanding_queries?).to be_false
+      expect(@resolver.outstanding_queries?).to eq false
     end
 
     it "should be true if there are any outstanding queries"  do
       @resolver.send_query(query)
-      expect(@resolver.outstanding_queries?).to be_true
+      expect(@resolver.outstanding_queries?).to eq true
     end
   end
 
   describe "#closed?" do
     it "should not be closed by default"  do
-      expect(@resolver.closed?).to be_false
+      expect(@resolver.closed?).to eq false
     end
     it "should be closed after calling #close" do
       @resolver.close
-      expect(@resolver.closed?).to be_true
+      expect(@resolver.closed?).to eq true
     end
   end
 
   describe "#close" do
     it "should call #cancel_all" do
-      @resolver.should_receive(:cancel_all).and_call_original
+      expect(@resolver).to receive(:cancel_all).and_call_original
       @resolver.close
     end
 
     it "should close the context" do
-      @context.should_receive(:close).and_call_original
+      expect(@resolver).to receive(:close).and_call_original
       @resolver.close
     end
   end

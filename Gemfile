@@ -8,7 +8,8 @@ group :development do
 end
 
 group :test do
-  gem "rspec"
+  gem "rspec", "~> 3.0"
+  gem "rspec-its"
   gem "simplecov"
   gem "rake"
 end

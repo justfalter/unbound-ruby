@@ -10,25 +10,25 @@ describe Unbound::Context do
   end
 
   subject { @ctx }
-  its(:raise_on_noid?) { should be_false }
+  its(:raise_on_noid?) { should eq false }
 
 
   it "should let me indicate that it should raise an error if the error code is :noid" do
     @ctx.raise_on_noid = true
-    expect(@ctx.raise_on_noid?).to be_true
+    expect(@ctx.raise_on_noid?).to eq true
   end
 
   describe "#closed?" do
     it "should indicate whether the context is closed or not" do
-      expect(@ctx.closed?).to be_false
+      expect(@ctx.closed?).to eq false
       @ctx.close
-      expect(@ctx.closed?).to be_true
+      expect(@ctx.closed?).to eq true
     end
   end
 
   describe "#close" do
     it "should delete the underlying context" do
-      Unbound::Bindings.should_receive(:ub_ctx_delete)
+      expect(Unbound::Bindings).to receive(:ub_ctx_delete)
       @ctx.close
     end
 
@@ -126,14 +126,14 @@ describe Unbound::Context do
       
       it "should raise an APIError when canceling a non-existent query" do
         @ctx.raise_on_noid = true 
-        expect(@ctx.raise_on_noid?).to be_true
+        expect(@ctx.raise_on_noid?).to eq true
         expect(lambda do 
           @ctx.cancel_async_query(@async_id + 1)
         end).to raise_error(Unbound::APIError)
       end
 
       it "#raise_on_noid=false should raise an APIError when canceling a non-existent query" do
-        expect(@ctx.raise_on_noid?).to be_false
+        expect(@ctx.raise_on_noid?).to eq false
         expect(@ctx.cancel_async_query(@async_id + 1)).to eq(:noid)
       end
     end
@@ -149,7 +149,7 @@ describe Unbound::Context do
     end
 
     it "should not be set to autoclose" do
-      expect(@ctx.io.autoclose?).to be_false
+      expect(@ctx.io.autoclose?).to eq false
     end
 
     it "should not autoclose when garbage collection occurs" do
