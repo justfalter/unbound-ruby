@@ -70,6 +70,24 @@ describe Unbound::Context do
     end
   end
 
+
+  context "an synchronous name resolution method" do
+    # expects:
+    #   @ctx 
+    describe 'existing zone' do
+      before :each do
+        @ctx.load_config(UnboundHelper.config_file("local_zone.conf"))
+      end
+      subject{ @ctx.resolve("mycomputer.local", 1, 1) }
+      it "should have the proper answer" do
+        expect(subject.answer.length).to be(1)
+        answer = subject.answer[0]
+        expect(answer[0].to_s).to eq("mycomputer.local")
+        expect(answer[2].address.to_s).to eq("192.0.2.51")
+      end
+    end
+  end
+
   shared_examples_for "an asynchronous name resolution method" do
     # expects:
     #   @processing_proc = A Proc
