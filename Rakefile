@@ -41,3 +41,5 @@ else
     spec.pattern = FileList['spec/**/*_spec.rb']
   end
 end
+
+task :default => [:spec]
