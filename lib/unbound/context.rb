@@ -87,6 +87,20 @@ module Unbound
       Unbound::Bindings.ub_fd(@ub_ctx)
     end
 
+    def resolve(name, rrtype=1, rrclass=1)
+      check_closed!
+      result_ptr = FFI::MemoryPointer.new :pointer
+      raise_if_error!(
+        Unbound::Bindings.ub_resolve(
+          @ub_ctx, name, rrtype, rrclass, result_ptr))
+      ptr = result_ptr.get_pointer(0)
+      begin
+        Unbound::Result.new(ptr).to_resolv
+      ensure
+        Unbound::Bindings.ub_resolve_free ptr
+      end
+    end
+
     def resolve_async(name, rrtype, rrclass, callback, private_data = nil)
       check_closed!
       async_id_ptr = FFI::MemoryPointer.new :int

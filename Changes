@@ -1,3 +1,6 @@
+2.x.x
+    - Add helper for synchronous queries - @corny.
+
 2.0.0 - 2013-03-12
     - Breaking change: Unbound::Query#cancel! no longer cancels the query. 
       Instead, use Unbound::Resolver#cancel_query to cancel queries. 

@@ -2,6 +2,8 @@ require 'rubygems'
 require 'bundler'
 Bundler.setup :default, :test
 
+require 'rspec/its'
+
 module UnboundHelper
   require 'pathname'
   SPEC_ROOT = Pathname.new(__FILE__).dirname.expand_path
