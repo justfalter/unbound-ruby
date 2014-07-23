@@ -3,6 +3,7 @@ Next
 
 * Your contribution here.
 
+* Add CONTRIBUTING.md - [@justfalter](https://github.com/justfalter) 
 * Rename Changes -> CHANGELOG.md - [@justfalter](https://github.com/justfalter) 
 * [#2](https://github.com/justfalter/unbound-ruby/pull/2): Add helper for synchronous queries - [@corny](https://github.com/corny)
 
