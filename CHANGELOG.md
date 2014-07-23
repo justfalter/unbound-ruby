@@ -3,6 +3,9 @@ Next
 
 * Your contribution here.
 
+2.1.0 (2014-07-23)
+==================
+
 * Make :spec default rake task - [@justfalter](https://github.com/justfalter) 
 * Add CONTRIBUTING.md - [@justfalter](https://github.com/justfalter) 
 * Rename Changes -> CHANGELOG.md - [@justfalter](https://github.com/justfalter) 

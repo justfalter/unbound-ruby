@@ -26,7 +26,7 @@ else
       Dir.glob("examples/*") + 
       Dir.glob("spec/{*.rb}") + 
       Dir.glob("spec/conf/{*.conf}") + 
-      %w(LICENSE.txt Gemfile README.md Rakefile VERSION)
+      %w(CONTRIBUTING.md CHANGELOG.md LICENSE.txt Gemfile README.md Rakefile VERSION)
 
   end
   Jeweler::RubygemsDotOrgTasks.new
